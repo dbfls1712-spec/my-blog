@@ -4,12 +4,15 @@
 //   #/tag/<tag>    태그별 글 목록
 
 import { parseMarkdown, escapeHtml } from './markdown.js';
-import { initThemeToggle } from './theme.js';
 
 const SITE_NAME = 'RIN';
 const SLUG_RE = /^[a-z0-9-]+$/;
+const CHARS_PER_MINUTE = 500; // 한국어 글 읽는 속도 (대략)
 
 const app = document.getElementById('app');
+const tagNav = document.getElementById('tag-nav');
+const progressBar = document.querySelector('.read-progress-bar');
+
 let postsPromise = null;
 let routeToken = 0;
 let firstRender = true;
@@ -48,8 +51,7 @@ async function loadPost(slug) {
 
 function formatDate(value) {
   const m = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return escapeHtml(value || '');
-  return `${m[1]}년 ${Number(m[2])}월 ${Number(m[3])}일`;
+  return m ? `${m[1]}.${m[2]}.${m[3]}` : escapeHtml(value || '');
 }
 
 function dateHtml(value) {
@@ -57,24 +59,33 @@ function dateHtml(value) {
   return `<time datetime="${escapeHtml(value)}">${formatDate(value)}</time>`;
 }
 
+function readingMinutes(html) {
+  const text = html.replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+  return Math.max(1, Math.round(text.length / CHARS_PER_MINUTE));
+}
+
+function tagHref(tag) {
+  return `#/tag/${encodeURIComponent(tag)}`;
+}
+
 function tagsHtml(tags) {
   if (!Array.isArray(tags) || tags.length === 0) return '';
   const items = tags
-    .map((tag) => `<li><a class="tag" href="#/tag/${encodeURIComponent(tag)}">#${escapeHtml(tag)}</a></li>`)
+    .map((tag) => `<li><a class="tag" href="${tagHref(tag)}">#${escapeHtml(tag)}</a></li>`)
     .join('');
   return `<ul class="tags" aria-label="태그">${items}</ul>`;
 }
 
-function postCardHtml(post) {
-  const desc = post.description ? `<p class="post-card-desc">${escapeHtml(post.description)}</p>` : '';
+function postCardHtml(post, index) {
+  const number = String(index + 1).padStart(2, '0');
+  const desc = post.description ? `<p class="card-desc">${escapeHtml(post.description)}</p>` : '';
   return `
     <li class="post-card">
-      <article>
-        <h2 class="post-card-title"><a href="#/post/${post.slug}">${escapeHtml(post.title || post.slug)}</a></h2>
-        <p class="post-meta">${dateHtml(post.date)}</p>
-        ${desc}
-        ${tagsHtml(post.tags)}
-      </article>
+      <span class="card-index" aria-hidden="true">${number}</span>
+      <h2 class="card-title"><a href="#/post/${post.slug}">${escapeHtml(post.title || post.slug)}</a></h2>
+      <p class="post-meta">${dateHtml(post.date)}</p>
+      ${desc}
+      ${tagsHtml(post.tags)}
     </li>`;
 }
 
@@ -86,6 +97,7 @@ function render(html) {
   app.innerHTML = html;
   app.removeAttribute('aria-busy');
   window.scrollTo(0, 0);
+  updateProgress();
   // 화면이 바뀌면 스크린리더가 새 내용부터 읽도록 초점을 옮깁니다.
   if (!firstRender) app.focus({ preventScroll: true });
   firstRender = false;
@@ -108,6 +120,63 @@ function renderError(error) {
   renderMessage('글을 불러오지 못했습니다', hint);
 }
 
+function renderNotFound() {
+  renderMessage('글을 찾을 수 없습니다', '주소가 바뀌었거나 삭제된 글일 수 있습니다.');
+}
+
+/* ---------- 사이드바 태그 메뉴 ---------- */
+
+function renderTagNav(posts) {
+  const counts = new Map();
+  for (const post of posts) {
+    for (const tag of post.tags || []) counts.set(tag, (counts.get(tag) || 0) + 1);
+  }
+  const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ko'));
+
+  const link = (href, label, count) =>
+    `<li><a class="tag-nav-link" href="${href}">${label}<span class="count">${count}</span></a></li>`;
+
+  tagNav.innerHTML = [
+    link('#/', '전체', posts.length),
+    ...tags.map(([tag, count]) => link(tagHref(tag), `#${escapeHtml(tag)}`, count)),
+  ].join('');
+  updateTagNav();
+}
+
+// 지금 보고 있는 목록에 맞는 메뉴 항목을 강조합니다.
+function updateTagNav() {
+  const hash = location.hash.startsWith('#/tag/') ? location.hash : '#/';
+  const onList = hash.startsWith('#/tag/') || !location.hash.startsWith('#/post/');
+  for (const a of tagNav.querySelectorAll('a')) {
+    if (onList && a.getAttribute('href') === hash) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  }
+}
+
+/* ---------- 읽기 진행 막대 ---------- */
+
+let progressFrame = 0;
+
+function updateProgress() {
+  progressFrame = 0;
+  if (!app.querySelector('.post')) {
+    progressBar.style.width = '0';
+    return;
+  }
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 1;
+  progressBar.style.width = `${(ratio * 100).toFixed(2)}%`;
+}
+
+window.addEventListener(
+  'scroll',
+  () => {
+    if (!progressFrame) progressFrame = requestAnimationFrame(updateProgress);
+  },
+  { passive: true }
+);
+window.addEventListener('resize', updateProgress);
+
 /* ---------- 화면 ---------- */
 
 async function showList(token, tag) {
@@ -115,9 +184,8 @@ async function showList(token, tag) {
   if (token !== routeToken) return;
 
   const filtered = tag ? posts.filter((post) => (post.tags || []).includes(tag)) : posts;
-  const heading = tag
-    ? `<h1 class="page-heading"><strong>#${escapeHtml(tag)}</strong> 태그의 글 ${filtered.length}개</h1>`
-    : '<h1 class="page-heading">최근 글</h1>';
+  const title = tag ? `#${escapeHtml(tag)}` : '최근 글';
+  const heading = `<h1 class="page-heading">${title}<span class="count">${filtered.length} posts</span></h1>`;
   const list = filtered.length
     ? `<ul class="post-list">${filtered.map(postCardHtml).join('')}</ul>`
     : '<p class="status">아직 글이 없습니다.</p>';
@@ -150,13 +218,15 @@ async function showPost(token, slug) {
   const title = meta.title || entry.title || slug;
   const date = meta.date || entry.date;
   const tags = Array.isArray(meta.tags) ? meta.tags : entry.tags;
+  const minutes = readingMinutes(html);
 
   setTitle(title);
   render(`
     <article class="post">
       <header class="post-header">
+        <a class="back-link" href="#/">← 목록</a>
         <h1 class="post-title">${escapeHtml(title)}</h1>
-        <p class="post-meta">${dateHtml(date)}</p>
+        <p class="post-meta">${dateHtml(date)}${date ? ' · ' : ''}${minutes}분 읽기</p>
         ${tagsHtml(tags)}
       </header>
       <div class="post-body">${html}</div>
@@ -164,10 +234,6 @@ async function showPost(token, slug) {
         <a class="back-link" href="#/">← 글 목록으로</a>
       </footer>
     </article>`);
-}
-
-function renderNotFound() {
-  renderMessage('글을 찾을 수 없습니다', '주소가 바뀌었거나 삭제된 글일 수 있습니다.');
 }
 
 /* ---------- 라우팅 ---------- */
@@ -192,6 +258,7 @@ async function route() {
   const token = ++routeToken;
   const parts = (hash.startsWith('#/') ? hash.slice(2) : '').split('/');
   app.setAttribute('aria-busy', 'true');
+  updateTagNav();
 
   try {
     if (parts[0] === 'post' && parts[1]) {
@@ -228,6 +295,6 @@ document.querySelector('.skip-link').addEventListener('click', (event) => {
   app.focus();
 });
 
-initThemeToggle(document.querySelector('.theme-toggle'));
 window.addEventListener('hashchange', route);
+loadPosts().then(renderTagNav).catch(() => {});
 route();

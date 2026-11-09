@@ -48,9 +48,8 @@ python -m http.server 8000
 | 경로 | 역할 |
 | --- | --- |
 | `index.html` | 페이지 뼈대, 테마 초기 적용 |
-| `css/style.css` | 전체 디자인, 라이트·다크 색 |
-| `js/app.js` | 주소(`#/…`)에 따라 화면 전환 |
+| `css/style.css` | 전체 디자인(검은 배경 + 네온), 레이아웃 |
+| `js/app.js` | 주소(`#/…`)에 따라 화면 전환, 태그 메뉴, 읽기 진행 막대 |
 | `js/markdown.js` | 마크다운 → HTML 변환 |
-| `js/theme.js` | 다크 모드 버튼 |
 | `posts/` | 글과 글 목록(`posts.json`) |
 | `images/` | 글에 쓰는 이미지 |

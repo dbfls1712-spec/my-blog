@@ -1,0 +1,162 @@
+# CLAUDE.md
+
+이 파일은 이 저장소에서 작업하는 Claude Code에게 프로젝트 맥락과 규칙을 알려줍니다.
+
+## 프로젝트 개요
+
+마크다운(`.md`) 파일로 쓴 글을 읽어 블로그 웹사이트로 보여주는 정적 사이트입니다.
+
+- **프레임워크·빌드 도구 없이** 순수 HTML, CSS, JavaScript(ES 모듈)로만 구현합니다.
+- 브라우저가 마크다운 파일을 `fetch`로 불러와 직접 HTML로 변환해 렌더링합니다.
+- 목표: 깔끔하고 읽기 좋은 디자인, 다크 모드 지원, 모바일 대응.
+
+## 기술 원칙
+
+- React, Vue, Svelte, Tailwind, Bootstrap, jQuery 등 프레임워크·라이브러리를 도입하지 않습니다.
+- `npm` 패키지, 번들러(webpack, Vite 등), 트랜스파일러를 쓰지 않습니다. `package.json`도 만들지 않습니다.
+- 마크다운 파서는 `js/markdown.js`에 직접 구현합니다. 외부 파서(marked, markdown-it 등)를 쓰고 싶다면 먼저 사용자에게 물어봅니다.
+- 최신 브라우저(Chrome, Safari, Firefox, Edge 최신 2개 버전)를 기준으로 하며, 그 범위에서 표준 기능(CSS 변수, `fetch`, ES 모듈, `<script type="module">`)은 자유롭게 씁니다.
+
+## 디렉터리 구조
+
+```
+my-blog/
+├── index.html          # 유일한 HTML 진입점 (해시 라우팅)
+├── css/
+│   └── style.css       # 전체 스타일, 라이트/다크 테마 변수
+├── js/
+│   ├── app.js          # 라우팅, 글 목록·글 본문 렌더링
+│   ├── markdown.js     # 마크다운 → HTML 변환기 (front matter 포함)
+│   └── theme.js        # 다크 모드 토글과 설정 저장
+├── posts/
+│   ├── posts.json      # 글 목록 매니페스트
+│   └── *.md            # 글 본문
+└── images/             # 글에 쓰는 이미지
+```
+
+새 파일을 추가할 때는 이 구조를 따르고, 구조가 바뀌면 이 문서도 함께 고칩니다.
+
+## 라우팅
+
+서버 설정 없이 GitHub Pages 같은 정적 호스팅에서 바로 동작하도록 **해시 라우팅**을 씁니다.
+
+- `#/` 또는 해시 없음 → 글 목록
+- `#/post/<slug>` → `posts/<slug>.md` 렌더링
+- `#/tag/<tag>` → 해당 태그의 글 목록
+- 존재하지 않는 글은 404 안내 화면을 보여주고 목록으로 돌아가는 링크를 둡니다.
+
+페이지를 바꿀 때마다 `document.title`을 갱신하고 스크롤을 맨 위로 올립니다.
+
+## 글 작성 형식
+
+각 글은 `posts/<slug>.md`이며, 파일 맨 위에 YAML 형식의 front matter를 둡니다.
+
+```markdown
+---
+title: 첫 번째 글
+date: 2026-11-09
+tags: [일상, 개발]
+description: 목록에 보일 한두 문장 요약
+draft: false
+---
+
+본문은 여기부터 시작합니다.
+```
+
+| 속성 | 뜻 |
+| --- | --- |
+| `title` | 글 제목 |
+| `date` | 작성일 (`YYYY-MM-DD`), 목록 정렬 기준 |
+| `tags` | 태그 목록 (`[a, b]`) |
+| `description` | 목록에 보일 요약 |
+| `draft` | `true`이면 목록에 보이지 않고 주소로 열어도 "찾을 수 없음"이 뜸. 공개 글은 `false` |
+
+- `draft`는 front matter와 `posts.json` 양쪽에 같은 값으로 적습니다. 목록은 `posts.json`, 글 화면은 front matter를 기준으로 판단합니다.
+
+- `slug`는 파일 이름(확장자 제외)이며 영문 소문자, 숫자, 하이픈만 씁니다.
+- 새 글을 추가하면 `posts/posts.json`에도 항목을 추가합니다. 브라우저는 디렉터리 목록을 읽을 수 없기 때문입니다.
+
+```json
+[
+  { "slug": "first-post", "title": "첫 번째 글", "date": "2026-11-09", "tags": ["일상", "개발"], "description": "...", "draft": false }
+]
+```
+
+- 목록은 `date` 기준 최신순으로 정렬해 보여줍니다.
+
+## 마크다운 변환기 (`js/markdown.js`)
+
+다음 문법을 지원해야 합니다.
+
+- 제목 `#`~`######`, 문단, 줄바꿈
+- 굵게 `**`, 기울임 `*`, 취소선 `~~`, 인라인 코드 `` ` ``
+- 링크 `[텍스트](url)`, 이미지 `![alt](src)`
+- 순서 있는/없는 목록(중첩 포함), 체크리스트 `- [ ]`
+- 인용문 `>`, 수평선 `---`
+- 언어 표시가 있는 코드 블록 ```` ```js ```` (`class="language-js"` 부여)
+- 표(GFM 테이블)
+
+규칙:
+
+- **보안**: 마크다운 원문의 HTML 특수문자(`<`, `>`, `&`, `"`)는 반드시 이스케이프합니다. 링크·이미지 URL은 `javascript:` 등 위험한 스킴을 막습니다.
+- 변환기는 DOM에 의존하지 않는 순수 함수(`parseMarkdown(text) → { meta, html }`)로 만들어 테스트하기 쉽게 합니다.
+- 제목에는 `id`를 붙여 앵커 링크가 가능하게 합니다.
+
+## 디자인 가이드
+
+**읽기 좋은 글**이 최우선입니다. 장식보다 타이포그래피와 여백으로 정리합니다.
+
+- 본문 폭은 `max-width: 68ch` 정도, 가운데 정렬.
+- 본문 글자 크기 `1.0625rem`(17px) 안팎, 줄 간격 `1.75` 안팎.
+- 한글 가독성을 위해 `word-break: keep-all`을 적용합니다.
+- 본문 글꼴은 손글씨체 **Gaegu**(Google Fonts, `index.html`에서 불러옴)입니다. 불러오지 못하면 시스템 글꼴로 대체됩니다.
+  `"Gaegu", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif`
+  Gaegu가 작게 보여서 `html { font-size: 118.75% }`로 전체 크기를 키웠습니다. 글꼴을 바꾸면 이 값도 함께 조정합니다.
+  코드는 `ui-monospace, "SF Mono", Consolas, monospace`.
+- 외부에서 불러오는 것은 Google Fonts 글꼴뿐입니다. 다른 외부 파일은 추가하지 않습니다.
+- 색은 배경·본문·보조 텍스트·강조색·테두리 정도로 절제해 씁니다.
+- 코드 블록은 가로 스크롤(`overflow-x: auto`)을 허용하고 본문 레이아웃을 넘치지 않게 합니다.
+- 이미지는 `max-width: 100%; height: auto`.
+- 링크·버튼에 키보드 포커스 표시(`:focus-visible`)를 남깁니다.
+
+### 다크 모드
+
+- 모든 색은 `:root`의 CSS 변수로 정의하고, 컴포넌트에서는 변수만 참조합니다. 색 값을 직접 쓰지 않습니다.
+- 기본값은 OS 설정(`prefers-color-scheme`)을 따릅니다.
+- 헤더의 토글 버튼으로 라이트/다크를 바꿀 수 있고, 선택은 `localStorage`에 저장합니다. 테마는 `<html data-theme="light|dark">`로 적용합니다.
+- 첫 화면이 깜빡이지 않도록, 저장된 테마를 적용하는 짧은 인라인 스크립트를 `<head>`에서 CSS보다 먼저 실행합니다.
+- `localStorage` 접근은 `try/catch`로 감쌉니다(사생활 보호 모드 대비).
+- 다크 모드에서도 본문 대비가 WCAG AA(4.5:1) 이상이 되도록 합니다.
+
+### 모바일 대응
+
+- 모바일 우선(mobile-first)으로 작성하고, 넓은 화면은 `min-width` 미디어 쿼리로 확장합니다.
+- `<meta name="viewport" content="width=device-width, initial-scale=1">`를 반드시 둡니다.
+- 좌우 여백은 최소 `16px`, 가로 스크롤이 생기지 않아야 합니다(표·코드 블록은 자체 스크롤).
+- 터치 대상(버튼, 링크)은 최소 `44×44px`.
+
+## 로컬에서 실행하기
+
+`fetch`는 `file://`에서 동작하지 않으므로 반드시 로컬 서버로 엽니다.
+
+```bash
+python -m http.server 8000
+```
+
+그다음 브라우저에서 `http://localhost:8000`을 엽니다. 별도의 빌드 단계는 없습니다.
+
+## 작업 시 확인 사항
+
+변경 후에는 다음을 확인합니다.
+
+1. 로컬 서버에서 글 목록과 글 본문이 정상적으로 열리는지
+2. 라이트/다크 모드 전환과 새로고침 후 유지 여부
+3. 375px 폭(모바일)에서 가로 스크롤 없이 보이는지
+4. 브라우저 콘솔에 에러가 없는지
+
+## 코드 스타일
+
+- 들여쓰기 2칸, 세미콜론 사용, `const`/`let`만 사용(`var` 금지).
+- 함수와 변수 이름은 영어 camelCase, CSS 클래스는 kebab-case.
+- 주석과 사용자에게 보이는 문구는 한국어로 작성합니다.
+- 전역 변수를 만들지 않고 ES 모듈의 `import`/`export`로 나눕니다.

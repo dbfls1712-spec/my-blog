@@ -641,6 +641,8 @@ main:focus {
 }
 
 .app-list {
+  display: grid;
+  gap: 1.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -692,6 +694,24 @@ main:focus {
 @media (min-width: 480px) {
   .app-preview iframe {
     height: 760px;
+  }
+}
+
+/* 도구·팔레트가 격자 아래로 쌓이는 앱은 더 높게 둡니다. */
+.app-preview-tall iframe {
+  height: 1310px;
+}
+
+@media (min-width: 480px) {
+  .app-preview-tall iframe {
+    height: 1170px;
+  }
+}
+
+/* 사이드바가 생기는 넓은 화면에서는 앱이 2단으로 펼쳐져 낮아집니다. */
+@media (min-width: 1000px) {
+  .app-preview-tall iframe {
+    height: 900px;
   }
 }
 

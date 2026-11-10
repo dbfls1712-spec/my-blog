@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>도트 네온</title>
+  <meta name="description" content="16×16 칸에 네온 도트를 찍어 작은 픽셀 그림을 만들고 PNG로 저장하는 에디터.">
+  <!-- 손글씨체 웹 글꼴 (Google Fonts의 Gaegu). 불러오지 못하면 시스템 글꼴로 보입니다. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main class="app">
+    <a class="back-link" href="../../index.html" target="_top">← 블로그로</a>
+
+    <header class="app-header">
+      <h1 class="title">
+        <span class="title-en" lang="en">DOT NEON</span>
+        <span class="title-ko">도트 네온</span>
+      </h1>
+      <p class="subtitle">16×16 칸에 네온 도트를 찍어 보세요</p>
+    </header>
+
+    <div class="workspace">
+      <div class="tools" role="group" aria-label="그리기 도구">
+        <button type="button" class="tool-btn" data-tool="pen" aria-pressed="true">
+          <span class="tool-icon" aria-hidden="true">✎</span><span>펜</span>
+        </button>
+        <button type="button" class="tool-btn" data-tool="eraser" aria-pressed="false">
+          <span class="tool-icon" aria-hidden="true">⌫</span><span>지우개</span>
+        </button>
+        <button type="button" class="tool-btn" data-tool="fill" aria-pressed="false">
+          <span class="tool-icon" aria-hidden="true">◧</span><span>채우기</span>
+        </button>
+        <button type="button" class="tool-btn" data-tool="picker" aria-pressed="false">
+          <span class="tool-icon" aria-hidden="true">⊙</span><span>스포이트</span>
+        </button>
+      </div>
+
+      <div class="board-area">
+        <div class="grid" id="grid" role="grid" aria-label="16×16 그림판"
+          aria-describedby="help-text" tabindex="0">
+          <!-- 칸 256개는 main.js가 채웁니다 -->
+        </div>
+      </div>
+
+      <p class="current">
+        <span>현재:</span>
+        <span class="current-swatch" id="current-swatch" aria-hidden="true"></span>
+        <span id="current-text">네온 시안 · 펜</span>
+      </p>
+
+      <div class="palette-wrap">
+        <div class="palette" id="palette" role="group" aria-label="색 팔레트">
+          <!-- 팔레트 16색은 main.js가 채웁니다 -->
+          <label class="swatch custom-swatch" id="custom-swatch">
+            <input type="color" id="custom-color" value="#ff9ecf" aria-label="사용자 색">
+            <span class="swatch-check" aria-hidden="true">✓</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="undo-btn" disabled>↶ 되돌리기</button>
+        <button type="button" class="btn" id="redo-btn" disabled>↷ 다시 하기</button>
+        <button type="button" class="btn" id="clear-btn">전체 지우기</button>
+      </div>
+
+      <div class="export">
+        <fieldset class="scale-group">
+          <legend>저장 크기</legend>
+          <label class="scale-option">
+            <input type="radio" name="scale" value="1">
+            <span>16px(원본)</span>
+          </label>
+          <label class="scale-option">
+            <input type="radio" name="scale" value="8">
+            <span>128px(×8)</span>
+          </label>
+          <label class="scale-option">
+            <input type="radio" name="scale" value="32" checked>
+            <span>512px(×32)</span>
+          </label>
+        </fieldset>
+        <button type="button" class="btn btn-primary" id="save-btn">PNG 저장</button>
+      </div>
+
+      <p class="help" id="help-text">
+        방향키 이동 · Space 칠하기 · Shift+방향키 이동하며 칠하기 ·
+        단축키 P 펜, E 지우개, F 채우기, I 스포이트, Ctrl+Z 되돌리기, Ctrl+Y 다시 하기
+      </p>
+
+      <p class="status" id="status" aria-live="polite" role="status"></p>
+    </div>
+  </main>
+</body>
+</html>

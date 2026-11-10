@@ -1,0 +1,504 @@
+/* 도트 네온 스타일 — UI 색은 모두 :root 변수로만 정의합니다 */
+:root {
+  /* 블로그에서 복사한 기본 색 */
+  --bg: #050508;
+  --bg-elev: #0b0b14;
+  --text: #d9fff7;
+  --muted: #8b93b8;
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff2bd6;
+  --neon-lime: #a6ff4d;
+
+  /* 이 앱에서 추가한 색 */
+  --grid-line: #1c2038;
+  --checker-a: #10101c;
+  --checker-b: #191a2b;
+  --btn-line: #3a4266;
+  --cursor: #00f0ff;
+
+  /* 빛번짐: 제목과 선택된 도구 버튼에만 사용 */
+  --glow-title: 0 0 4px rgba(0, 240, 255, 0.9), 0 0 14px rgba(0, 240, 255, 0.55);
+  --glow-title-pink: 0 0 4px rgba(255, 43, 214, 0.95), 0 0 16px rgba(255, 43, 214, 0.6);
+  --glow-tool: 0 0 6px rgba(0, 240, 255, 0.75), 0 0 16px rgba(0, 240, 255, 0.4);
+
+  --font-sans: "Gaegu", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+    "Malgun Gothic", sans-serif;
+
+  /* 좌우 여백 16px을 빼고도 넘치지 않도록 */
+  --grid-size: min(92vw, 420px, calc(100vw - 32px));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+/* ---------- 머리말 ---------- */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--neon-cyan);
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.app-header {
+  margin: 4px 0 16px;
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1.1;
+}
+
+.title-en {
+  color: var(--neon-cyan);
+  letter-spacing: 0.08em;
+  text-shadow: var(--glow-title);
+}
+
+.title-ko {
+  color: var(--neon-pink);
+  font-size: 1.6rem;
+  text-shadow: var(--glow-title-pink);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+/* ---------- 작업 영역 배치 (좁은 화면: 1단) ---------- */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "tools"
+    "board"
+    "current"
+    "palette"
+    "actions"
+    "export"
+    "help"
+    "status";
+  gap: 14px;
+}
+
+.tools { grid-area: tools; }
+.board-area { grid-area: board; }
+.current { grid-area: current; }
+.palette-wrap { grid-area: palette; }
+.actions { grid-area: actions; }
+.export { grid-area: export; }
+.help { grid-area: help; }
+.status { grid-area: status; }
+
+/* ---------- 버튼 공통 ---------- */
+button {
+  font: inherit;
+}
+
+.btn,
+.tool-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid var(--btn-line);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn:hover:not(:disabled),
+.tool-btn:hover {
+  border-color: var(--neon-cyan);
+}
+
+.btn:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn-primary {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+/* ---------- 도구 ---------- */
+.tools {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 4px 2px;
+  line-height: 1.15;
+}
+
+.tool-icon {
+  font-size: 1.2rem;
+}
+
+/* 선택된 도구: 색 + 굵은 글자 + 빛번짐 (aria-pressed로 구분) */
+.tool-btn[aria-pressed="true"] {
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan);
+  color: var(--bg);
+  font-weight: 700;
+  box-shadow: var(--glow-tool);
+}
+
+/* ---------- 격자 ---------- */
+.board-area {
+  display: flex;
+  justify-content: center;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: var(--grid-size);
+  aspect-ratio: 1;
+  padding: 1px;
+  border: 1px solid var(--btn-line);
+  background: var(--grid-line);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: crosshair;
+}
+
+.grid-row {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 1px;
+  min-height: 0;
+}
+
+/* 빈 칸: 어두운 2×2 체크무늬(투명) */
+.cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background: conic-gradient(
+    var(--checker-b) 25%,
+    var(--checker-a) 0 50%,
+    var(--checker-b) 0 75%,
+    var(--checker-a) 0
+  );
+}
+
+/* 칠한 칸: 그림 색 그대로(빛번짐 없음). --px는 main.js가 칸마다 지정 */
+.cell.filled {
+  background: var(--px);
+}
+
+/* 칠하는 순간 0.12초 "점등" */
+.cell.lit {
+  animation: cell-lit 0.12s ease-out;
+}
+
+@keyframes cell-lit {
+  from {
+    filter: brightness(1.9);
+  }
+  to {
+    filter: none;
+  }
+}
+
+/* 키보드 커서: 격자에 포커스가 있을 때만 cyan 이중 테두리 */
+.grid.show-cursor:focus .cell.is-cursor {
+  z-index: 1;
+  box-shadow:
+    inset 0 0 0 2px var(--cursor),
+    inset 0 0 0 3px var(--bg),
+    inset 0 0 0 4px var(--cursor);
+}
+
+/* ---------- 현재 색·도구 ---------- */
+.current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--text);
+  font-size: 1.15rem;
+}
+
+.current > span:first-child {
+  color: var(--muted);
+}
+
+.current-swatch {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--text);
+  border-radius: 4px;
+  background: var(--px);
+}
+
+/* ---------- 팔레트 ---------- */
+.palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 6px;
+}
+
+.swatch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--btn-line);
+  border-radius: 8px;
+  background: var(--px);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* 선택 표시: 색 이외에 3px 테두리 + ✓ */
+.swatch[aria-pressed="true"],
+.custom-swatch.is-selected {
+  border: 3px solid var(--text);
+}
+
+.swatch-check {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.swatch[aria-pressed="true"] .swatch-check,
+.custom-swatch.is-selected .swatch-check {
+  display: inline-flex;
+}
+
+/* 사용자 색: 색 입력란이 칸 전체를 덮습니다 */
+.custom-swatch {
+  overflow: hidden;
+  background: var(--bg-elev);
+}
+
+.custom-swatch .swatch-check {
+  position: absolute;
+}
+
+.custom-swatch input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-swatch input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.custom-swatch input[type="color"]::-webkit-color-swatch {
+  border: 0;
+}
+
+.custom-swatch input[type="color"]::-moz-color-swatch {
+  border: 0;
+}
+
+.custom-swatch input[type="color"]:focus-visible {
+  outline: none;
+}
+
+.custom-swatch:has(input:focus-visible) {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+/* ---------- 되돌리기·저장 ---------- */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actions .btn {
+  flex: 1 1 auto;
+}
+
+.export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.scale-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.scale-group legend {
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.scale-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--btn-line);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  color: var(--text);
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
+.scale-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--neon-cyan);
+}
+
+.scale-option:has(input:checked) {
+  border-color: var(--neon-cyan);
+}
+
+/* ---------- 도움말·상태 ---------- */
+.help {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.status {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--neon-cyan);
+  font-size: 1.1rem;
+}
+
+/* ---------- 넓은 화면(≥ 720px): 격자 왼쪽, 도구·팔레트 오른쪽 ---------- */
+@media (min-width: 720px) {
+  .app {
+    max-width: 880px;
+  }
+
+  .workspace {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: repeat(7, auto) 1fr;
+    grid-template-areas:
+      "board tools"
+      "board current"
+      "board palette"
+      "board actions"
+      "board export"
+      "board help"
+      "board status"
+      "board .";
+    column-gap: 24px;
+    align-items: start;
+  }
+
+  .board-area {
+    align-self: start;
+  }
+
+  .grid {
+    --grid-size: min(420px, calc(100vw - 32px - 24px - 280px));
+  }
+}
+
+/* ---------- 움직임 줄이기 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cell.lit {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

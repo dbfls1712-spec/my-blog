@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>네온 퓨즈</title>
+  <meta name="description" content="같은 빛의 칩을 밀어 붙여 더 밝은 빛으로 융합하는 4×4 퍼즐.">
+  <!-- 손글씨체 웹 글꼴 (Google Fonts의 Gaegu). 불러오지 못하면 시스템 글꼴로 보입니다. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main class="app">
+    <a class="back-link" href="../../index.html">← 블로그로</a>
+
+    <header class="app-header">
+      <h1 class="title">
+        <span class="title-en" lang="en">NEON FUSE</span>
+        <span class="title-ko">네온 퓨즈</span>
+      </h1>
+      <p class="subtitle">같은 빛을 밀어 붙여 융합하세요</p>
+    </header>
+
+    <section class="scoreboard" aria-label="점수판">
+      <div class="score-box">
+        <span class="score-label">점수</span>
+        <span class="score-value" id="score">0</span>
+      </div>
+      <div class="score-box">
+        <span class="score-label">최고</span>
+        <span class="score-value" id="best">0</span>
+      </div>
+      <button type="button" class="btn" id="new-game">새 게임</button>
+    </section>
+
+    <div class="board-wrap">
+      <div class="board" id="board" role="grid" aria-label="네온 퓨즈 4×4 격자"
+        tabindex="0" aria-describedby="help-text">
+        <!-- 칸은 main.js가 채웁니다 -->
+      </div>
+      <span class="bracket bracket-tl" aria-hidden="true"></span>
+      <span class="bracket bracket-tr" aria-hidden="true"></span>
+      <span class="bracket bracket-bl" aria-hidden="true"></span>
+      <span class="bracket bracket-br" aria-hidden="true"></span>
+
+      <div class="overlay" id="overlay" hidden>
+        <div class="overlay-card">
+          <p class="overlay-title">더 이상 융합할 수 없어요</p>
+          <p class="overlay-score">최종 점수 <strong id="final-score">0</strong>점</p>
+          <button type="button" class="btn" id="retry">다시 하기</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="help" id="help-text">방향키·WASD 또는 스와이프로 밀기</p>
+
+    <div class="toast" id="toast" aria-hidden="true"></div>
+
+    <!-- 화면 읽기 프로그램용 알림 -->
+    <p class="sr-only" id="live" aria-live="polite" aria-atomic="true"></p>
+    <p class="sr-only" id="alert" role="alert"></p>
+  </main>
+</body>
+</html>

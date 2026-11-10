@@ -1,0 +1,440 @@
+/* 네온 퓨즈 스타일 — 색은 모두 :root 변수로만 정의합니다 */
+:root {
+  /* 블로그에서 복사한 기본 색 */
+  --bg: #050508;
+  --bg-elev: #0b0b14;
+  --text: #d9fff7;
+  --muted: #8b93b8;
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff2bd6;
+  --neon-lime: #a6ff4d;
+  --border: rgba(0, 240, 255, 0.22);
+  --overlay-bg: rgba(5, 5, 8, 0.86);
+
+  /* 이 앱에서 추가한 색 */
+  --neon-amber: #ffb347;
+  --neon-violet: #b98cff;
+  --chip-line: #3a4266;
+  --white-hot: #f4fffd;
+
+  /* 빛번짐: 제목과 Lv 7 이상 칩에만 사용 */
+  --glow-title: 0 0 4px rgba(0, 240, 255, 0.9), 0 0 14px rgba(0, 240, 255, 0.55);
+  --glow-title-pink: 0 0 4px rgba(255, 43, 214, 0.95), 0 0 16px rgba(255, 43, 214, 0.6);
+  --glow-cyan: drop-shadow(0 0 6px rgba(0, 240, 255, 0.55));
+  --glow-lime: drop-shadow(0 0 7px rgba(166, 255, 77, 0.6));
+  --glow-pink: drop-shadow(0 0 8px rgba(255, 43, 214, 0.65));
+  --glow-amber: drop-shadow(0 0 9px rgba(255, 179, 71, 0.7));
+  --glow-violet: drop-shadow(0 0 10px rgba(185, 140, 255, 0.75));
+  --glow-hot: drop-shadow(0 0 6px rgba(0, 240, 255, 0.9)) drop-shadow(0 0 14px rgba(255, 43, 214, 0.8));
+
+  --font-sans: "Gaegu", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+    "Malgun Gothic", sans-serif;
+
+  /* 칩 모양: 네 모서리를 8% 잘라 낸 팔각형 */
+  --octagon: polygon(8% 0, 92% 0, 100% 8%, 100% 92%, 92% 100%, 8% 100%, 0 92%, 0 8%);
+  /* 좌우 여백 16px을 빼고도 넘치지 않도록 */
+  --board-size: min(92vw, 420px, calc(100vw - 32px));
+  --board-pad: 8px;
+  --cell-gap: 6px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 블로그로 돌아가는 링크 */
+.back-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 6px;
+  color: var(--neon-cyan);
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+/* 제목 */
+.app-header {
+  text-align: center;
+  margin: 4px 0 12px;
+}
+
+.title {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0 0.5em;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.title-en {
+  color: var(--neon-cyan);
+  font-size: 2.4rem;
+  letter-spacing: 0.06em;
+  text-shadow: var(--glow-title);
+}
+
+.title-ko {
+  color: var(--neon-pink);
+  font-size: 1.6rem;
+  text-shadow: var(--glow-title-pink);
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+/* 점수판 */
+.scoreboard {
+  width: var(--board-size);
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.score-box {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score-label {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.score-value {
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--neon-cyan);
+  background: var(--bg);
+  color: var(--neon-cyan);
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--neon-cyan);
+  color: var(--bg);
+}
+
+/* 회로 기판 격자 */
+.board-wrap {
+  position: relative;
+  width: var(--board-size);
+  aspect-ratio: 1;
+}
+
+.board {
+  width: 100%;
+  height: 100%;
+  padding: var(--board-pad);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--cell-gap);
+  background: var(--bg-elev);
+  border: 1px solid var(--chip-line);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 격자 네 모서리의 L자 브래킷 장식 */
+.bracket {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 0 solid var(--neon-cyan);
+  pointer-events: none;
+}
+
+.bracket-tl {
+  top: -5px;
+  left: -5px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.bracket-tr {
+  top: -5px;
+  right: -5px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.bracket-bl {
+  bottom: -5px;
+  left: -5px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+
+.bracket-br {
+  bottom: -5px;
+  right: -5px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+/* 행 요소는 접근성용이며 레이아웃에는 영향을 주지 않음 */
+.board-row {
+  display: contents;
+}
+
+/* 칸: 빈 칸은 점선 회로선 */
+.cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.cell.is-empty {
+  border: 1px dashed var(--chip-line);
+}
+
+/* 칩: 바깥 층(테두리색) + 안쪽 층(배경색)으로 팔각형 테두리를 그립니다 */
+.chip {
+  --chip-edge: var(--chip-line);
+  --chip-fill: var(--bg);
+  --chip-text: var(--text);
+  --edge-w: 1px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: var(--octagon);
+  background: var(--chip-edge);
+  color: var(--chip-text);
+  font-weight: 700;
+  font-size: 2.2rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: var(--edge-w);
+  clip-path: var(--octagon);
+  background: var(--chip-fill);
+}
+
+.chip-num {
+  position: relative;
+}
+
+/* 자릿수별 글자 크기 */
+.chip[data-digits="3"] { font-size: 1.8rem; }
+.chip[data-digits="4"] { font-size: 1.4rem; }
+.chip[data-digits="5"] { font-size: 1.1rem; }
+
+/* 단계별 색 (Lv 1~6: 테두리만 빛남) */
+.chip[data-level="2"] { --chip-edge: var(--neon-cyan); --chip-text: var(--neon-cyan); }
+.chip[data-level="3"] { --chip-edge: var(--neon-lime); --chip-text: var(--neon-lime); }
+.chip[data-level="4"] { --chip-edge: var(--neon-pink); --chip-text: var(--neon-pink); --edge-w: 2px; }
+.chip[data-level="5"] { --chip-edge: var(--neon-amber); --chip-text: var(--neon-amber); --edge-w: 2px; }
+.chip[data-level="6"] { --chip-edge: var(--neon-violet); --chip-text: var(--neon-violet); --edge-w: 2px; }
+
+/* Lv 7~11: 칩 전체가 빛으로 채워짐 */
+.chip[data-level="7"] { --chip-edge: var(--neon-cyan); --chip-fill: var(--neon-cyan); --chip-text: var(--bg); --edge-w: 0px; }
+.chip[data-level="8"] { --chip-edge: var(--neon-lime); --chip-fill: var(--neon-lime); --chip-text: var(--bg); --edge-w: 0px; }
+.chip[data-level="9"] { --chip-edge: var(--neon-pink); --chip-fill: var(--neon-pink); --chip-text: var(--bg); --edge-w: 0px; }
+.chip[data-level="10"] { --chip-edge: var(--neon-amber); --chip-fill: var(--neon-amber); --chip-text: var(--bg); --edge-w: 0px; }
+.chip[data-level="11"] { --chip-edge: var(--neon-violet); --chip-fill: var(--neon-violet); --chip-text: var(--bg); --edge-w: 0px; }
+
+/* Lv 12 이상: 백열 칩 + 분홍 안쪽선 */
+.chip[data-level="hot"] { --chip-edge: var(--neon-pink); --chip-fill: var(--white-hot); --chip-text: var(--bg); --edge-w: 2px; }
+
+/* 빛번짐: clip-path가 box-shadow를 잘라 내므로 칸에 drop-shadow 필터로 줍니다 */
+.cell[data-level="7"] { filter: var(--glow-cyan); }
+.cell[data-level="8"] { filter: var(--glow-lime); }
+.cell[data-level="9"] { filter: var(--glow-pink); }
+.cell[data-level="10"] { filter: var(--glow-amber); }
+.cell[data-level="11"] { filter: var(--glow-violet); }
+.cell[data-level="hot"] { filter: var(--glow-hot); }
+
+/* 융합 연출: 점화(밝기↑ 후 원래대로) / 새 칩 페이드인 */
+.chip.is-merged {
+  animation: ignite 0.18s ease-out;
+}
+
+.chip.is-new {
+  animation: fade-in 0.12s ease-out;
+}
+
+@keyframes ignite {
+  0% { filter: brightness(1); }
+  45% { filter: brightness(1.9); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 게임 오버 오버레이 */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--overlay-bg);
+  text-align: center;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlay-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.overlay-score {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+/* 안내 문구와 토스트 */
+.help {
+  margin: 14px 0 6px;
+  color: var(--muted);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.toast {
+  min-height: 2.4rem;
+  padding: 4px 14px;
+  border: 1px solid transparent;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  border-color: var(--border);
+  background: var(--bg);
+}
+
+/* 화면에는 숨기고 화면 읽기 프로그램에만 읽힘 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 아주 좁은 화면 */
+@media (max-width: 360px) {
+  :root {
+    --board-pad: 6px;
+    --cell-gap: 5px;
+  }
+
+  .title-en {
+    font-size: 2rem;
+  }
+
+  .chip { font-size: 2rem; }
+  .chip[data-digits="3"] { font-size: 1.6rem; }
+  .chip[data-digits="4"] { font-size: 1.25rem; }
+  .chip[data-digits="5"] { font-size: 1rem; }
+}
+
+/* 움직임 줄이기 설정을 존중합니다 */
+@media (prefers-reduced-motion: reduce) {
+  .chip.is-merged,
+  .chip.is-new {
+    animation: none;
+  }
+
+  .toast {
+    transition: none;
+  }
+}

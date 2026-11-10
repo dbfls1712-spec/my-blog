@@ -632,6 +632,80 @@ main:focus {
   border-top: 1px dashed var(--border);
 }
 
+/* ===== 미니 웹앱 카드 ===== */
+.apps-section {
+  width: 100%;
+  max-width: 960px;
+  margin-top: 3rem;
+  padding: 0 var(--gutter);
+}
+
+.app-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 43, 214, 0.05), transparent 45%), var(--bg-elev);
+}
+
+.app-card .card-title a {
+  color: var(--text);
+}
+
+/* 앱 카드는 iframe을 직접 조작해야 하므로 카드 전체를 덮는 링크 영역을 끕니다. */
+.app-card .card-title a::after {
+  content: none;
+}
+
+.app-card .card-title a:hover {
+  color: var(--neon-cyan);
+}
+
+.app-card .card-title a:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+.app-preview {
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.app-preview iframe {
+  display: block;
+  width: 100%;
+  height: 660px;
+  border: 0;
+}
+
+/* 넓은 화면에서는 게임 격자가 커지므로 iframe도 높입니다. */
+@media (min-width: 480px) {
+  .app-preview iframe {
+    height: 760px;
+  }
+}
+
+.app-open {
+  margin: 0.75rem 0 0;
+}
+
+.app-open a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--neon-cyan);
+}
+
 /* ===== 태블릿 ===== */
 @media (min-width: 720px) {
   :root {

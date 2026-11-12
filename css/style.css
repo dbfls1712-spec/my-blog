@@ -708,8 +708,16 @@ main:focus {
   }
 }
 
-/* 사이드바가 생기는 넓은 화면에서는 앱이 2단으로 펼쳐져 낮아집니다. */
-@media (min-width: 1000px) {
+/* 앱은 iframe 폭이 720px 이상일 때 2단이 됩니다.
+   사이드바(1000px부터)와 카드 여백을 빼면 화면 폭 약 1160px부터 그 폭이 나옵니다. */
+@media (min-width: 1160px) {
+  .app-preview-tall iframe {
+    height: 980px;
+  }
+}
+
+/* 카드 폭이 최대(약 810px)에 가까워지면 2단 높이가 더 줄어듭니다. */
+@media (min-width: 1220px) {
   .app-preview-tall iframe {
     height: 900px;
   }

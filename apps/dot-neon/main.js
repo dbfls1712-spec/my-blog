@@ -250,6 +250,8 @@ function endStroke() {
 // ---------- 도구 적용 ----------
 // 한 칸에 현재 도구를 한 번 적용합니다(클릭·Space/Enter·채우기·스포이트).
 function applyAt(index) {
+  // 진행 중인 획이 있으면 먼저 확정해 되돌리기 단위가 섞이지 않게 합니다
+  endStroke();
   const tool = state.tool;
   if (tool === 'pen' || tool === 'eraser') {
     const next = setPixel(state.pixels, index, strokeColor());
@@ -665,11 +667,18 @@ function init() {
   bindPointer(els.grid);
   bindKeyboard(els.grid);
 
-  // 페이지를 떠나기 전 남은 저장을 마칩니다
-  window.addEventListener('pagehide', () => {
+  // 페이지를 떠나거나 가려지기 전, 그리던 획까지 확정하고 바로 저장합니다
+  const flushSave = () => {
+    endStroke();
     if (saveTimer !== null) {
       clearTimeout(saveTimer);
-      saveNow();
+    }
+    saveNow();
+  };
+  window.addEventListener('pagehide', flushSave);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushSave();
     }
   });
 }

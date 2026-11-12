@@ -43,8 +43,12 @@ let toastTimer = 0;
 function loadBest() {
   try {
     const raw = window.localStorage.getItem(BEST_KEY);
-    const n = Number.parseInt(raw ?? '', 10);
-    return Number.isFinite(n) && n > 0 ? n : 0;
+    // 숫자만으로 된 문자열이고 안전한 정수 범위일 때만 믿습니다(손상된 값은 0)
+    if (typeof raw !== 'string' || !/^\d{1,15}$/.test(raw)) {
+      return 0;
+    }
+    const n = Number(raw);
+    return Number.isSafeInteger(n) && n > 0 ? n : 0;
   } catch (err) {
     return 0;
   }
